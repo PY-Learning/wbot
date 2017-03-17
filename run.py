@@ -65,6 +65,8 @@ def groupchat_reply(msg):
         replay_text = interpreter.run_py_cmd(msg['Text'][1:])
     elif msg['isAt']:
         replay_text = tuling.replay_text(msg['Text'], msg['ActualNickName']) or REPLAY_ERROR_TEXT
+    elif msg['Text'].startswith('大葱'):
+        replay_text = " ".join(msg['Text'][2:])
     else:
         replay_text = ''
 

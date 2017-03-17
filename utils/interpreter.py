@@ -12,10 +12,13 @@ class TextArea(object):
     def write(self, *args, **kwargs):
         self.buffer.append(args)
 
+def fake_open():
+    print("访问文件IO是禁止的哦")
+    exit(0)
 
 class PythonProcess(Process):
     # 禁止调用的库名单
-    __BLACK_LIST__ = ['sys', 'os']
+    __BLACK_LIST__ = ['sys', 'os', 'requests', 'socket', 'urllib']
 
     def __init__(self, cmd):
         Process.__init__(self)
@@ -30,7 +33,7 @@ class PythonProcess(Process):
         __sys.stdout = text_area
         del __sys
         try:
-            exec(self.cmd, dict(), dict())
+            exec(self.cmd, dict(open=fake_open), dict())
         except ImportError:
             print("找不到或者调用了禁止的库, 不要使坏哦～")
         except Exception as e:
