@@ -12,7 +12,7 @@ class TextArea(object):
     def write(self, *args, **kwargs):
         self.buffer.append(args)
 
-def fake_open():
+def fake_open(*args, **kwargs):
     print("访问文件IO是禁止的哦")
     exit(0)
 
