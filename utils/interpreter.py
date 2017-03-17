@@ -12,9 +12,10 @@ class TextArea(object):
     def write(self, *args, **kwargs):
         self.buffer.append(args)
 
+
 def fake_open(*args, **kwargs):
-    print("访问文件IO是禁止的哦")
-    exit(0)
+    raise Exception("访问文件IO是禁止的哦")
+
 
 class PythonProcess(Process):
     # 禁止调用的库名单
