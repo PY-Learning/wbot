@@ -30,16 +30,18 @@ class PythonProcess(Process):
     def run(self):
         import sys as __sys
         for item in self.__BLOCK_LIST__:
-            del __sys.modules[item]
+            __sys.modules[item] = None
+
         text_area = TextArea()
         __sys.stdout = text_area
-        del __sys
         try:
             exec(self.cmd, dict(open=fake_open), dict())
         except ImportError:
             text_area.write("找不到或者调用了禁止的库, 不要使坏哦～")
         except Exception as e:
             text_area.write("执行错误：{}".format(e))
+        finally:
+            del __sys
 
         result = ''.join([''.join(text) for text in text_area.buffer])
         if len(result.split('\n')) >= MAX_LINE:
