@@ -20,7 +20,7 @@ def fake_open(*args, **kwargs):
 
 class PythonProcess(Process):
     # 禁止调用的库名单
-    __BLOCK_LIST__ = ['sys', 'os', 'requests', 'socket', 'urllib', 'subprocess']
+    __BLOCK_LIST__ = ['sys', 'os', 'requests', 'socket', 'urllib', 'subprocess', 'codecs']
 
     def __init__(self, cmd):
         Process.__init__(self)

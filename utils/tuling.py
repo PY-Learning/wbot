@@ -30,6 +30,9 @@ class TuLing(object):
         return response.json()
 
     def replay_text(self, info, userid=None):
+        if not info.strip():
+            return '你要说些什么?'
+
         data = {
             'key': self._api_key,
             'info': info

@@ -64,14 +64,15 @@ def groupchat_reply(msg):
     if msg['Text'][0] == interpreter.PY_SYMBLOE:
         replay_text = interpreter.run_py_cmd(msg['Text'][1:])
     elif msg['isAt']:
-        replay_text = tuling.replay_text(msg['Text'], msg['ActualNickName']) or REPLAY_ERROR_TEXT
+        recive_msg = msg['Text'].replace('@', '').replace(itchat.get_friends()[0]['NickName'], '')
+        replay_text = tuling.replay_text(recive_msg, msg['ActualNickName']) or REPLAY_ERROR_TEXT
     elif msg['Text'].startswith('大葱'):
         replay_text = " ".join(msg['Text'][2:])
     else:
         replay_text = ''
 
     if replay_text:
-        itchat.send(replay_text, msg['FromUserName'])
+        itchat.send(replay_text.replace('@', '*'), msg['FromUserName'])
 
 
 @itchat.msg_register(RECALL, isGroupChat=True)
