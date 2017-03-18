@@ -2,7 +2,8 @@
 from multiprocessing import Process, Queue
 
 # 命令执行的超时时间(s)
-DEFAULT_TIMEOUT = 3
+DEFAULT_TIMEOUT = 1
+MAX_LINE = 10
 
 
 class TextArea(object):
@@ -19,7 +20,7 @@ def fake_open(*args, **kwargs):
 
 class PythonProcess(Process):
     # 禁止调用的库名单
-    __BLACK_LIST__ = ['sys', 'os', 'requests', 'socket', 'urllib']
+    __BLOCK_LIST__ = ['sys', 'os', 'requests', 'socket', 'urllib', 'subprocess']
 
     def __init__(self, cmd):
         Process.__init__(self)
@@ -28,18 +29,24 @@ class PythonProcess(Process):
 
     def run(self):
         import sys as __sys
-        for item in self.__BLACK_LIST__:
-            __sys.modules[item] = None
+        for item in self.__BLOCK_LIST__:
+            del __sys.modules[item]
         text_area = TextArea()
         __sys.stdout = text_area
         del __sys
         try:
             exec(self.cmd, dict(open=fake_open), dict())
         except ImportError:
-            print("找不到或者调用了禁止的库, 不要使坏哦～")
+            text_area.write("找不到或者调用了禁止的库, 不要使坏哦～")
         except Exception as e:
-            print("执行错误：{}".format(e))
-        self.queue.put(''.join([''.join(text) for text in text_area.buffer]))
+            text_area.write("执行错误：{}".format(e))
+
+        result = ''.join([''.join(text) for text in text_area.buffer])
+        if len(result.split('\n')) >= MAX_LINE:
+            result = '\n'.join(result.split('\n')[:MAX_LINE])
+            result += '\n 行数超出或等于限制，已被隐藏'
+
+        self.queue.put(result)
 
 
 def async_run(cmd):
