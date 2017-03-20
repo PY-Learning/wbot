@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from multiprocessing import Process, Queue
 
-# 命令执行的超时时间(s)
+from wbot.core.base import BaseModule
+from wbot.core.types import MessageType, SenderType
+
 DEFAULT_TIMEOUT = 1
 MAX_LINE = 10
 
@@ -28,12 +30,12 @@ class PythonProcess(Process):
         self.queue = Queue()
 
     def run(self):
-        import sys as __sys
+        import sys
         for item in self.__BLOCK_LIST__:
-            __sys.modules[item] = None
+            sys.modules[item] = None
 
         text_area = TextArea()
-        __sys.stdout = text_area
+        sys.stdout = text_area
         try:
             exec(self.cmd, dict(open=fake_open), dict())
         except ImportError:
@@ -41,7 +43,7 @@ class PythonProcess(Process):
         except Exception as e:
             text_area.write("执行错误：{}".format(e))
         finally:
-            del __sys
+            del sys
 
         result = ''.join([''.join(text) for text in text_area.buffer])
         if len(result.split('\n')) >= MAX_LINE:
@@ -62,14 +64,13 @@ def async_run(cmd):
         return process.queue.get(True, DEFAULT_TIMEOUT)
 
 
-class Interpreter(object):
+class InterpreterModule(BaseModule):
     PY_SYMBLOE = '#'
 
     def __init___(self, *args, **kwargs):
-        super(Interpreter, self).__init__()
+        super(InterpreterModule, self).__init__()
 
-    @staticmethod
-    def run_py_cmd(cmd):
+    def run_py_cmd(self, cmd):
         cmd = cmd.strip()
         if not cmd: return 'NULL'
 
@@ -78,3 +79,12 @@ class Interpreter(object):
             return async_run(cmd)
         except:
             return '出现未知执行错误'
+
+    def handle(self, msg, msg_type, sender_type, background=False):
+        self.run_py_cmd(msg['Text'][1:])
+
+    def match(self, msg, msg_type, sender_type) -> int:
+        if msg_type in MessageType.Text \
+                and sender_type in (SenderType.Friends, SenderType.Group) \
+                and msg['Text'].startswith(self.PY_SYMBLOE):
+            return self.CERTAINLY
