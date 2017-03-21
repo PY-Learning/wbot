@@ -284,7 +284,7 @@ class client(object):
                     logging.error('Failed to get QR Code, please restart the program')
                     sys.exit()
 
-            logging.info('Please scan the QR Code', True)
+            logging.info('Please scan the QR Code')
 
         open_QR()
         while 1:
