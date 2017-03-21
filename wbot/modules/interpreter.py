@@ -4,9 +4,6 @@ from multiprocessing import Process, Queue
 from wbot.core.base import BaseModule
 from wbot.core.types import MessageType, SenderType
 
-DEFAULT_TIMEOUT = 1
-MAX_LINE = 10
-
 
 class TextArea(object):
     def __init__(self):
@@ -24,9 +21,10 @@ class PythonProcess(Process):
     # 禁止调用的库名单
     __BLOCK_LIST__ = ['sys', 'os', 'requests', 'socket', 'urllib', 'subprocess', 'codecs']
 
-    def __init__(self, cmd):
+    def __init__(self, cmd, maxline):
         Process.__init__(self)
         self.cmd = cmd
+        self.maxline = maxline
         self.queue = Queue()
 
     def run(self):
@@ -46,26 +44,38 @@ class PythonProcess(Process):
             del sys
 
         result = ''.join([''.join(text) for text in text_area.buffer])
-        if len(result.split('\n')) >= MAX_LINE:
-            result = '\n'.join(result.split('\n')[:MAX_LINE])
+        if len(result.split('\n')) >= self.maxline:
+            result = '\n'.join(result.split('\n')[:self.maxline])
             result += '\n 行数超出或等于限制，已被隐藏'
 
         self.queue.put(result)
 
 
-def async_run(cmd):
-    process = PythonProcess(cmd)
+def async_run(cmd, timeout, maxline):
+    process = PythonProcess(cmd, maxline)
     process.start()
-    process.join(timeout=DEFAULT_TIMEOUT)
+    process.join(timeout=timeout)
     if process.exitcode is None:
         process.terminate()
         return "运行超时，中止运行"
     else:
-        return process.queue.get(True, DEFAULT_TIMEOUT)
+        return process.queue.get(True, timeout)
 
 
 class InterpreterModule(BaseModule):
-    PY_SYMBLOE = '#'
+    PY_SYMBOL = '#'
+    CONFIG_PREFIX = "INTERPRETER"
+
+    def __init__(self, timeout=3, maxline=10):
+        self.timeout = timeout
+        self.maxline = maxline
+
+    @classmethod
+    def init_from(cls, bot):
+        config = cls.configs_from(bot)
+        timeout = config['TIMEOUT']
+        maxline = config['MAXLINE']
+        return cls(timeout=timeout, maxline=maxline)
 
     def __init___(self, *args, **kwargs):
         super(InterpreterModule, self).__init__()
@@ -76,7 +86,7 @@ class InterpreterModule(BaseModule):
 
         try:
             # eval("eval('__import__(\"os\")')", {'__builtins__':__builtins__, "__import__": None})))"
-            return async_run(cmd)
+            return async_run(cmd, self.timeout, self.maxline)
         except:
             return '出现未知执行错误'
 
@@ -86,5 +96,5 @@ class InterpreterModule(BaseModule):
     def match(self, msg, msg_type, sender_type) -> int:
         if msg_type in MessageType.Text \
                 and sender_type in (SenderType.Friends, SenderType.Group) \
-                and msg['Text'].startswith(self.PY_SYMBLOE):
+                and msg['Text'].startswith(self.PY_SYMBOL):
             return self.CERTAINLY

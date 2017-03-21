@@ -1,6 +1,10 @@
 # -*- encoding: utf-8 -*-
+import errno
+import os
+import types
 
 import itchat
+from wbot.ext.log import info
 
 
 class BaseModule(object):
@@ -28,18 +32,20 @@ class BaseModule(object):
 
     @classmethod
     def configs_from(cls, bot):
-        """从Bot中读取所有以 CONFIG_PREFIX 为前缀的配置项目，去掉前缀、保存为字典、并小写化Key返回"""
+        """从Bot中读取所有以 CONFIG_PREFIX 为前缀的配置项目，去掉前缀、保存为字典返回"""
         result = dict()
         for key, value in bot.configs.items():
             if key.startswith(cls.CONFIG_PREFIX + '_'):
-                result[key[len(cls.CONFIG_PREFIX) + 1:].lower()] = value
+                result[key[len(cls.CONFIG_PREFIX) + 1:]] = value
         return result
 
     @classmethod
     def init_from(cls, bot):
-        """从Bot配置中加载一个模块"""
-        configs = cls.configs_from(bot)
-        return cls(**configs)
+        """从Bot配置中加载一个模块
+
+        :return: 返回配置好的模块实例
+        """
+        raise NotImplementedError()
 
     @classmethod
     def register_from(cls, bot):
@@ -52,6 +58,42 @@ class BaseModule(object):
         bot.register(module)
 
 
+class BotConfig(dict):
+    def __init__(self, root_path, **kwargs):
+        super(BotConfig, self).__init__(**kwargs)
+        self.root_path = root_path
+
+    def from_env(self, silent=False, env_name='WXBOT_CONFIG'):
+        rv = os.environ.get(env_name)
+        if not rv:
+            if silent:
+                return False
+            raise RuntimeError('环境变量 %r 未设置，请设置环境变量指向配置文件' % env_name)
+        return self.from_pyfile(rv, silent=silent)
+
+    def from_pyfile(self, filename, silent=False):
+        filename = os.path.join(self.root_path, filename)
+        d = types.ModuleType('config')
+        d.__file__ = filename
+        try:
+            with open(filename, encoding='utf-8') as config_file:
+                exec(compile(config_file.read(), filename, 'exec'), d.__dict__)
+        except IOError as e:
+            if silent and e.errno in (errno.ENOENT, errno.EISDIR):
+                return False
+            e.strerror = '无法加载配置文件 (%s)' % e.strerror
+            raise
+        self.from_object(d)
+        return True
+
+    def from_object(self, obj):
+        # if isinstance(obj, string_types):
+        #     obj = import_string(obj)
+        for key in dir(obj):
+            if key.isupper():
+                self[key] = getattr(obj, key)
+
+
 class BaseBot(object):
     """机器人基类
 
@@ -59,13 +101,13 @@ class BaseBot(object):
     """
 
     modules = []
-    configs = dict()
 
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.configs = config
 
     def run(self):
         """运行此Bot"""
+        info("Bot Server start running...")
         itchat.auto_login(hotReload=True, enableCmdQR=2)
         itchat.run()
 
@@ -88,11 +130,3 @@ class BaseBot(object):
 
     def register(self, module: BaseModule):
         self.modules.append(module)
-
-    def from_dict(self, d):
-        #  TODO: BaseBot from_dict
-        pass
-
-    def from_env(self, env_name='WXBOT_CONFIG'):
-        #  TODO: BaseBot from_env
-        pass

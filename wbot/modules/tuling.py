@@ -12,18 +12,26 @@ class TuLingModule(BaseModule):
     Tuling robot http://www.tuling123.com
     Doc http://www.tuling123.com/help/h_cent_webapi.jhtml
     """
+    CONFIG_PREFIX = "TULING"
     __metaclass__ = MetaSingleton
-    API_URL = 'http://www.tuling123.com/openapi/api'
 
     SUB_TYPE_TEXT = 100000
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, api_key, api_secret, api_url):
         super(TuLingModule, self).__init__()
-        self._api_key = kwargs.get('api_key')
-        self._api_secret = kwargs.get('api_secret')
-        self._api_url = kwargs.get('api_url', TuLingModule.API_URL)
+        self._api_key = api_key
+        self._api_secret = api_secret
+        self._api_url = api_url
         assert self._api_key and self._api_secret, \
             'tuling key or secret is None'
+
+    @classmethod
+    def init_from(cls, bot):
+        configs = cls.configs_from(bot)
+        api_key = configs.get("API_KEY")
+        api_secret = configs.get("API_SECRET")
+        api_url = configs.get("API_URL")
+        return cls(api_key, api_secret, api_url)
 
     def _post(self, data):
         response = requests.post(url=self._api_url, data=data)

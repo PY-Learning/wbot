@@ -5,12 +5,20 @@ from wbot.core.types import MessageType
 
 
 class FaqModule(BaseModule):
+    CONFIG_PREFIX = "FAQ"
     __metaclass__ = MetaSingleton
 
-    def __init__(self, *args, **kwargs):
+    @classmethod
+    def init_from(cls, bot):
+        config = cls.configs_from(bot)
+        friend_welcome = config.get('FRIEND_WELCOME')
+        group_info = config.get('GROUP_INFO')
+        return cls(friend_welcome, group_info)
+
+    def __init__(self, friend_welcome, group_info):
         super(FaqModule, self).__init__()
-        self._friend_welcome = kwargs.get('friend_welcome', '')
-        self._group_info = kwargs.get('group_info', {})
+        self._friend_welcome = friend_welcome
+        self._group_info = group_info
 
     @property
     def group_name(self):

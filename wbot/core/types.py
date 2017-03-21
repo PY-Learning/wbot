@@ -20,6 +20,7 @@ class MessageType(Enum):
     Friends = FRIENDS
     Recall = RECALL
 
+
 class SenderType(Enum):
     Group = 'Group'
     Friends = 'Friends'

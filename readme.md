@@ -8,7 +8,7 @@
 
 ## Usage
 
-首先安装各种依赖
+首先安装各种依赖。目前机器人只在 Python3 环境下测试通过。
 
 ```bash
 pip install -r requirements.txt
@@ -19,6 +19,34 @@ pip install -r requirements.txt
 ```bash
 python run.py
 ```
+
+## Configuration
+
+配置文件的加载顺序为：
+
+1. 加载模版配置文件`wbot/config.dist.py`，载入默认配置
+1. 加载执行目录文件`config.py`, 载入用户配置
+1. 加载环境变量中的`WXBOT_CONFIG`变量所指向的文件，载入生产环境配置
+
+后载入的配置会覆盖先载入的配置。
+
+配置项目的相关说明参照配置模版文件。
+
+如果您要修改配置文件，请复制文件`wbot/config.dist.py`到项目根目录，并命名为`config.py`，或执行以下指令：
+```bash
+cp wbot/config.dist.py ./config.py
+```
+
+### 配置变量命名
+
+要求全部大写。
+
+顶层配置项目按照模版方式命名。
+
+模块相关配置按照模块前缀的方式命名，例如Recall模块定义的前缀为`"RECALL"`，
+则其相关配置项目的命名遵守`"RECALL_XXXXX"`的形式进行命名。
+
+模块内部读取配置时，只能看到自己相关的配置变量，并会自动消除前缀。
 
 ## Contribute
 
