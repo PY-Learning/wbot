@@ -5,6 +5,7 @@ import requests
 from wbot.core.base import BaseModule
 from wbot.core.singleton import MetaSingleton
 from wbot.core.types import MessageType
+from wbot.core.wrapper import ItChatWrapper
 
 
 class TuLingModule(BaseModule):
@@ -55,9 +56,13 @@ class TuLingModule(BaseModule):
 
         return None
 
-    def match(self, msg, msg_type, sender_type):
+    def match(self, msg, msg_type, sender_type, from_self=False):
+        if from_self:
+            return
         if msg_type in [MessageType.Text] and msg['isAt']:
             return 1  # 最低的优先级
 
-    def handle(self, msg, msg_type, sender_type, background=False):
-        return self.replay_text(msg['Text'])
+    def handle(self, msg, msg_type, sender_type, background=False, from_self=False):
+        if from_self:
+            return
+        ItChatWrapper.send_msg(self.replay_text(msg['Text'], msg['FromUserName']), msg['FromUserName'])
