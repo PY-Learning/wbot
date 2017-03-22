@@ -89,6 +89,12 @@ class RecallModule(BaseModule):
             content = "{location}。链接地址：{url}。".format(location=msg["Text"], url=msg['Url'])
         elif msg_type is MessageType.Map:
             content = "{location}。腾讯地图链接：{url}。".format(location=msg["Content"].split('\n')[0][:-1], url=msg['Url'])
+        elif msg_type is MessageType.Card:
+            #  todo 如何根据UserName获取微信号？
+            content = "{nickname}，来自{city}{province}, {gender}，微信号开发中".format(
+                nickname=msg['Text']['NickName'], gender="男" if msg['Text']['Sex'] == 1 else "女",
+                city=msg['Text']['City'], province=msg['Text']['Province']
+            )
         else:
             return
         self.redis.set('WXBOTTYPE' + key, typ, 300)
@@ -125,6 +131,9 @@ class RecallModule(BaseModule):
                 elif typ == "Map":
                     ItChatWrapper.send_msg(
                         "{username} 撤回地图位置：{content}".format(username=username, content=content), to_user_name)
+                elif typ == 'Card':
+                    ItChatWrapper.send_msg(
+                        "{username} 撤回名片分享：{content}".format(username=username, content=content), to_user_name)
                 else:
                     pass
 
@@ -142,11 +151,11 @@ class RecallModule(BaseModule):
 
         if sender_type is SenderType.Group:
             if msg_type not in (MessageType.Text, MessageType.Video, MessageType.Picture, MessageType.Recording,
-                                MessageType.Attachment, MessageType.Map, MessageType.Sharing, MessageType.Note):
+                                MessageType.Attachment, MessageType.Map, MessageType.Sharing, MessageType.Note,
+                                MessageType.Card):
                 return
             group_name = get_chatroom_name_by_username(msg['FromUserName'])
             if group_name in ('PY Learning', 'test1'):
-
                 if is_recall_message(msg, msg_type):
                     return self.CERTAINLY
                 else:
