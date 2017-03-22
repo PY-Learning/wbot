@@ -1,19 +1,26 @@
 # -*- coding: utf-8 -*-
+import os
 
 ##################
 # General Config #
 ##################
 
-LOGGER_FORMAT = '[%(levelname)s] %(asctime)s %(message)s'
-LOGGER_LEVEL = 'DEBUG'
-LOGGER_DATEFMT = '%m/%d/%Y %I:%M:%S %p'
-LOGGER_NAME = 'wbot'
+LOGGER_FORMAT = "[%(levelname)s] %(asctime)s %(message)s"
+LOGGER_LEVEL = "DEBUG"
+LOGGER_DATEFMT = "%m/%d/%Y %I:%M:%S %p"
+LOGGER_NAME = "wbot"
 
-PROJECT_ROOT = "."
+PROJECT_ROOT = os.path.abspath(__file__)
 
 # 在这里填写想要加载的模块列表(使用模块的类名)
 MODULE_LIST = [
     "ReplayModule"
+]
+
+# 注册监听群名
+# TODO <CI_Knight> NotImplemented
+GROUP_LIST = [
+    "PY Learning"
 ]
 
 #################
@@ -22,7 +29,7 @@ MODULE_LIST = [
 
 TULING_API_KEY = "xxxx"
 TULING_API_SECRET = "xxxxx"
-TULING_API_URL = 'http://www.tuling123.com/openapi/api'
+TULING_API_URL = "http://www.tuling123.com/openapi/api"
 
 ##############
 # Faq Module #
@@ -44,10 +51,9 @@ INTERPRETER_MAXLINE = 10
 #################
 # Recall Module #
 #################
-RECALL_REDIS_HOST = 'localhost'
+RECALL_REDIS_HOST = "localhost"
 RECALL_REDIS_PORT = 6379
-RECALL_CACHE_BACKEND = 'redis'
-RECALL_CACHE_DIR = 'cache'
+RECALL_CACHE_BACKEND = "redis"
+RECALL_CACHE_DIR = "cache"
 RECALL_START_NOTIFY = None
 RECALL_END_NOTIFY = None
-
