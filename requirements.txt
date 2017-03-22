@@ -3,3 +3,5 @@ requests
 tornado
 pillow
 xmltodict
+itchat
+redis

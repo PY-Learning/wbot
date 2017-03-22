@@ -4,7 +4,8 @@
 """
 from enum import Enum
 
-from itchat.content import ATTACHMENT, CARD, FRIENDS, MAP, NOTE, PICTURE, RECALL, RECORDING, SHARING, TEXT, VIDEO
+from itchat.content import ATTACHMENT, CARD, FRIENDS, MAP, NOTE, PICTURE, RECORDING, SHARING, TEXT, VIDEO, SYSTEM
+
 
 
 class MessageType(Enum):
@@ -18,7 +19,7 @@ class MessageType(Enum):
     Attachment = ATTACHMENT
     Video = VIDEO
     Friends = FRIENDS
-    Recall = RECALL
+    System = SYSTEM
 
 
 class SenderType(Enum):

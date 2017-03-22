@@ -4,7 +4,8 @@ import os
 import types
 
 import itchat
-from wbot.ext.log import info
+
+from wbot.ext.log import debug, info
 
 
 class BaseModule(object):
@@ -18,7 +19,7 @@ class BaseModule(object):
     IMPOSSIBLE = 0  # 绝不匹配
     BACKGROUND = -1  # 后台运行，通知该插件但不回复消息
 
-    def handle(self, msg, msg_type, sender_type, background=False):
+    def handle(self, msg, msg_type, sender_type, background=False, from_self=False):
         """处理消息"""
         raise NotImplementedError
 
@@ -56,6 +57,14 @@ class BaseModule(object):
         """
         module = cls.init_from(bot)
         bot.register(module)
+
+    def after_login(self):
+        """在Bot登录后调用"""
+        pass
+
+    def before_destory(self):
+        """在程序结束前调用"""
+        pass
 
 
 class BotConfig(dict):
@@ -104,25 +113,35 @@ class BaseBot(object):
 
     def __init__(self, config):
         self.configs = config
+        self.user_name = None
+        self.nick_name = None
 
     def run(self):
         """运行此Bot"""
         info("Bot Server start running...")
-        itchat.auto_login(hotReload=True, enableCmdQR=2)
-        itchat.run()
+        try:
+            itchat.auto_login(hotReload=True, enableCmdQR=2)
+            self.after_login()
+            itchat.run()
+        except KeyboardInterrupt:
+            info("KeyboardInterrupt occurred ...  Quitting, Bye.")
+        self.before_destory()
 
     def handle_msg(self, msg, msg_type, sender_type):
         max_idx = 0
         max_match = 0
         background_list = []
         for idx, module in enumerate(self.modules):
-            module_match = module.match(msg, msg_type, sender_type) or 0
+            module_match = module.match(msg, msg_type, sender_type, from_self=msg['FromUserName'] == self.user_name)
+            if module_match is None:
+                module_match = 0
             if module_match > max_match:
                 max_idx, max_match = idx, module_match
             if module_match < 0:
                 background_list.append(idx)
         for idx in background_list:
-            self.modules[idx].handle(msg, msg_type, sender_type, background=True)
+            self.modules[idx].handle(msg, msg_type, sender_type, background=True,
+                                     from_self=msg['FromUserName'] == self.user_name)
         if max_match == 0:
             return
         else:
@@ -130,3 +149,17 @@ class BaseBot(object):
 
     def register(self, module: BaseModule):
         self.modules.append(module)
+
+    def after_login(self):
+        user = itchat.search_friends()
+        self.user_name = user['UserName']
+        self.nick_name = user['NickName']
+        debug('Login username is: %s, nickname is: %s' % (self.user_name, self.nick_name))
+        itchat.send_msg('Start Server', self.user_name)
+        itchat.send_image('./a/test.jpg', self.user_name)
+        for module in self.modules:
+            module.after_login()
+
+    def before_destory(self):
+        for module in self.modules:
+            module.before_destory()

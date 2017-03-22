@@ -40,3 +40,14 @@ FAQ_INVITE_KEY = "python"
 INTERPRETER_TIMEOUT = 3
 # 解释返回值最大行数
 INTERPRETER_MAXLINE = 10
+
+#################
+# Recall Module #
+#################
+RECALL_REDIS_HOST = 'localhost'
+RECALL_REDIS_PORT = 6379
+RECALL_CACHE_BACKEND = 'redis'
+RECALL_CACHE_DIR = 'cache'
+RECALL_START_NOTIFY = None
+RECALL_END_NOTIFY = None
+
