@@ -155,8 +155,6 @@ class BaseBot(object):
         self.user_name = user['UserName']
         self.nick_name = user['NickName']
         debug('Login username is: %s, nickname is: %s' % (self.user_name, self.nick_name))
-        itchat.send_msg('Start Server', self.user_name)
-        itchat.send_image('./a/test.jpg', self.user_name)
         for module in self.modules:
             module.after_login()
 

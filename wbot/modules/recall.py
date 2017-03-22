@@ -3,7 +3,6 @@ import hashlib
 import html
 import os
 
-import redis
 import xmltodict
 
 from wbot.core.base import BaseModule
@@ -57,8 +56,13 @@ class RecallModule(BaseModule):
 
     @classmethod
     def init_from(cls, bot):
-        host = bot.configs.get('REDIS_HOST', 'localhost')
-        port = bot.configs.get('REDIS_PORT', 6379)
+        try:
+            import redis
+        except ImportError:
+            raise ImportError('Loading recall module require redis library')
+        configs = cls.configs_from(bot)
+        host = configs.get('REDIS_HOST', 'localhost')
+        port = configs.get('REDIS_PORT', 6379)
         redis_client = redis.Redis(host=host, port=port)
         return cls(redis_client)
 
@@ -82,7 +86,7 @@ class RecallModule(BaseModule):
             save_to(data, saved_name, self.cache_dir)
             content = saved_name
         elif msg_type is MessageType.Sharing:
-            content = content = "{location}。链接地址：{url}。".format(location=msg["Text"], url=msg['Url'])
+            content = "{location}。链接地址：{url}。".format(location=msg["Text"], url=msg['Url'])
         elif msg_type is MessageType.Map:
             content = "{location}。腾讯地图链接：{url}。".format(location=msg["Content"].split('\n')[0][:-1], url=msg['Url'])
         else:
