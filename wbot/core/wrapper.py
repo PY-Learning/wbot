@@ -1,5 +1,4 @@
 # -*- encoding: utf-8 -*-
-
 import itchat
 from wbot.core.base import BaseBot
 from wbot.core.types import MessageType, SenderType
@@ -29,7 +28,7 @@ class ItChatWrapper(object):
 
     @staticmethod
     def search_chatroom():
-        #  TODO: ItChatWrapper search_chatroom  
+        #  TODO: ItChatWrapper search_chatroom
         pass
 
     @staticmethod
