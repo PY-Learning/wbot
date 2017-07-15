@@ -2,7 +2,7 @@
 import logging
 import sys
 
-logger = None
+_logger = None
 
 #  在加载Logging配置之前首先使用最简模式的Logger
 logging.basicConfig(level=logging.INFO,
@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO,
 
 
 def init_logging(bot):
-    global logger
+    global _logger
     fmt = bot.configs.get('LOGGER_FORMAT', "[%(levelname)s] %(asctime)s %(message)s")
     level = bot.configs.get('LOGGER_LEVEL', "INFO")
     datefmt = bot.configs.get('LOGGER_DATEFMT', '%m/%d/%Y %I:%M:%S %p')
@@ -19,13 +19,13 @@ def init_logging(bot):
     handler = logging.StreamHandler(stream=sys.stdout)
     handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
     handler.setLevel(level)
-    logger = logging.Logger(logger_name)
-    logger.addHandler(handler)
+    _logger = logging.Logger(logger_name)
+    _logger.addHandler(handler)
 
 
 def log(level, msg, *args, **kwargs):
-    if logger:
-        logger.log(level, msg, *args, **kwargs)
+    if _logger:
+        _logger.log(level, msg, *args, **kwargs)
     else:
         logging.log(level, msg, *args, **kwargs)
 

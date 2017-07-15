@@ -8,24 +8,24 @@ import importlib
 import os
 
 from wbot.core.base import BaseBot, BaseModule
-from wbot.ext.log import critical, debug, info
+from wbot.ext import logger
 
 
 def init_bot(bot: BaseBot):
     load_installed('wbot/modules', bot.configs.get('PROJECT_ROOT'))
-    info('Loading required module list ...')
+    logger.info('Loading required module list ...')
     module_list = bot.configs.get("MODULE_LIST")
-    debug('Load complete, modules: %s' % str(module_list))
+    logger.debug('Load complete, modules: %s' % str(module_list))
     for module_name in module_list:
         m = None
         try:
             m = globals()[module_name]
         except KeyError:
-            critical('Configured module [%s] not found, please check "/wbot/modules/__init__.py", '
+            logger.critical('Configured module [%s] not found, please check "/wbot/modules/__init__.py", '
                      'did you forget import such module?')
             exit(1)
         if m:
-            debug('Registering module: %s ...' % module_name)
+            logger.debug('Registering module: %s ...' % module_name)
             m.register_from(bot)
 
 
@@ -34,7 +34,7 @@ def load_installed(path, project_root, base_module_name='wbot.modules'):
 
     :param path: 要扫描的路径（相对于项目目录）
     """
-    info('Scanning Installed Modules...')
+    logger.info('Scanning Installed Modules...')
     install_path = os.path.join(project_root, path)
     dir_list = os.listdir(install_path)
     mods = list()
@@ -47,6 +47,6 @@ def load_installed(path, project_root, base_module_name='wbot.modules'):
             for attr in module_object.__dir__():
                 ins = getattr(module_object, attr, None)
                 if type(ins) is type and issubclass(ins, BaseModule) and (attr not in mods) and attr != 'BaseModule':
-                    debug('Found Module: %s' % attr)
+                    logger.debug('Found Module: %s' % attr)
                     globals()[attr] = ins
                     mods.append(attr)

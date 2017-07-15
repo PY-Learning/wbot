@@ -5,7 +5,7 @@ import types
 
 import itchat
 
-from wbot.ext.log import debug, info
+from wbot.ext import logger
 
 
 class BaseModule(object):
@@ -118,13 +118,13 @@ class BaseBot(object):
 
     def run(self):
         """运行此Bot"""
-        info("Bot Server start running...")
+        logger.info("Bot Server start running...")
         try:
             itchat.auto_login(hotReload=True, enableCmdQR=2)
             self.after_login()
             itchat.run()
         except KeyboardInterrupt:
-            info("KeyboardInterrupt occurred ...  Quitting, Bye.")
+            logger.info("KeyboardInterrupt occurred ...  Quitting, Bye.")
         self.before_destory()
 
     def handle_msg(self, msg, msg_type, sender_type):
@@ -154,7 +154,7 @@ class BaseBot(object):
         user = itchat.search_friends()
         self.user_name = user['UserName']
         self.nick_name = user['NickName']
-        debug('Login username is: %s, nickname is: %s' % (self.user_name, self.nick_name))
+        logger.debug('Login username is: %s, nickname is: %s' % (self.user_name, self.nick_name))
         for module in self.modules:
             module.after_login()
 

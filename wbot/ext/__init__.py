@@ -1,9 +1,7 @@
 # -*- encoding: utf-8 -*-
-import logging
-
-from wbot.ext.log import init_logging
+from . import logger
 
 
 def init_ext(bot):
-    logging.log(logging.INFO, 'Initializing Extensions ...')
-    init_logging(bot)
+    logger.info('Initializing Extensions ...')
+    logger.init_logging(bot)
