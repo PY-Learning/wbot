@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 
 ##################
 # General Config #
@@ -10,7 +9,7 @@ LOGGER_LEVEL = "DEBUG"
 LOGGER_DATEFMT = "%m/%d/%Y %I:%M:%S %p"
 LOGGER_NAME = "wbot"
 
-PROJECT_ROOT = os.path.abspath(__file__)
+PROJECT_ROOT = '.'
 
 # 在这里填写想要加载的模块列表(使用模块的类名)
 MODULE_LIST = [

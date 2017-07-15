@@ -17,7 +17,6 @@ def create_bot(root_path='.') -> WxBot:
     info("Creating default bot.")
     info("Loading Configuration...")
     config = BotConfig(root_path)
-    config.from_pyfile('wbot/config.dist.py', silent=True)
     config.from_pyfile('config.py', silent=True)
     config.from_env(silent=True)
     bot = WxBot(config)
