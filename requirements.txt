@@ -1,7 +1,3 @@
-gevent
-requests
-tornado
-pillow
-xmltodict
-itchat
-redis
+itchat==1.3.8
+requests==2.18.1
+xmltodict==0.11.0
