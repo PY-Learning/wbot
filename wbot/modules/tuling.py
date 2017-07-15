@@ -3,9 +3,9 @@
 import requests
 
 from wbot.core.base import BaseModule
-from wbot.core.singleton import MetaSingleton
 from wbot.core.types import MessageType
 from wbot.core.wrapper import ItChatWrapper
+from wbot.utils import MetaSingleton
 
 
 class TuLingModule(BaseModule):

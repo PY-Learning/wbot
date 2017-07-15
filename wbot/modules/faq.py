@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from wbot.core.base import BaseModule
-from wbot.core.singleton import MetaSingleton
 from wbot.core.types import MessageType
+from wbot.utils import MetaSingleton
 
 
 class FaqModule(BaseModule):

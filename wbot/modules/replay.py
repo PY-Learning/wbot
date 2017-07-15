@@ -3,7 +3,7 @@ import pprint
 
 from wbot.core.base import BaseModule
 from wbot.core.types import MessageType, SenderType
-from wbot.ext.log import debug
+from wbot.ext import logger
 from wbot.utils import get_chatroom_name_by_username
 
 
@@ -16,11 +16,11 @@ class ReplayModule(BaseModule):
 
     def handle(self, msg, msg_type, sender_type, background=False, from_self=False):
         if from_self:
-            debug(pprint.pformat(msg))
+            logger.debug(pprint.pformat(msg))
         if get_chatroom_name_by_username(msg['FromUserName']) == 'PY Learning':
-            debug("%s: %s" % (msg['ActualNickName'], msg['Content']))
+            logger.debug("%s: %s" % (msg['ActualNickName'], msg['Content']))
         else:
-            debug("Message from: %s" % get_chatroom_name_by_username(msg['FromUserName']))
+            logger.debug("Message from: %s" % get_chatroom_name_by_username(msg['FromUserName']))
 
     def match(self, msg, msg_type, sender_type, from_self=False) -> int:
         if msg_type is MessageType.Text and sender_type is SenderType.Group:

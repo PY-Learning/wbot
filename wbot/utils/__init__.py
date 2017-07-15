@@ -1,5 +1,7 @@
 # -*- encoding: utf-8 -*-
 
+from .singleton import MetaSingleton
+
 from wbot.core.wrapper import ItChatWrapper
 
 
