@@ -1,12 +1,11 @@
 # -*- encoding: utf-8 -*-
 import os
 import pickle
-import pprint
 
 from wbot.core.base import BaseModule
-from wbot.core.types import MessageType, SenderType
+from wbot.core.types import SenderType
 from wbot.core.wrapper import ItChatWrapper
-from wbot.ext.log import debug
+from wbot.ext import logger
 from wbot.utils import get_chatroom_name_by_username
 
 BOMB_LOG = 'bomblog.obj'
@@ -38,7 +37,7 @@ class FishBombModule(BaseModule):
             username = msg['ActualNickName']
             to_user_name = msg['FromUserName']
             if username not in self.log_set:
-                debug('%s Logged' % username)
+                logger.debug('%s Logged' % username)
                 ItChatWrapper.send_msg('恭喜 @%s 冒泡成功！' % username, to_user_name)
                 self.log_set.add(username)
                 self.save_log()
